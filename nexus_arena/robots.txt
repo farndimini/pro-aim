@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://nexusarena.github.io/sitemap.xml
+Sitemap: https://farndimini.github.io/nexus_arena/sitemap.xml
