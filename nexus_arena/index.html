@@ -520,6 +520,57 @@
         }
         .toast.show { opacity: 1; }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+        .article-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92); z-index: 4000;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px); padding: 20px;
+        }
+        .article-modal.active { display: flex; }
+        .article-modal-content {
+            background: var(--card-bg); border-radius: 20px;
+            border: 1px solid var(--neon-blue); width: 100%; max-width: 800px;
+            max-height: 90vh; overflow-y: auto; position: relative;
+            box-shadow: 0 0 60px rgba(0,243,255,0.2);
+        }
+        .article-modal-header {
+            padding: 25px 30px; display: flex; justify-content: space-between;
+            align-items: flex-start; border-bottom: 1px solid rgba(0,243,255,0.15);
+            position: sticky; top: 0; background: var(--card-bg); z-index: 1;
+        }
+        .article-modal-header h2 {
+            font-family: 'Orbitron', sans-serif; font-size: 24px;
+            color: var(--neon-blue); padding-right: 40px;
+        }
+        .article-modal-header .article-meta-tag {
+            font-size: 12px; padding: 4px 14px; border-radius: 12px;
+            display: inline-block; margin-top: 10px;
+        }
+        .article-modal-close {
+            background: none; border: none; color: #fff; font-size: 32px;
+            cursor: pointer; transition: 0.3s; position: absolute; top: 20px; right: 25px;
+        }
+        .article-modal-close:hover { color: var(--neon-pink); transform: rotate(90deg); }
+        .article-modal-body {
+            padding: 30px; line-height: 1.9; color: rgba(255,255,255,0.85);
+            font-size: 16px;
+        }
+        .article-modal-body h2 {
+            font-family: 'Orbitron', sans-serif; font-size: 20px;
+            color: var(--neon-purple); margin: 30px 0 15px;
+        }
+        .article-modal-body h2:first-child { margin-top: 0; }
+        .article-modal-body p { margin-bottom: 16px; }
+        .article-modal-body strong { color: var(--neon-yellow); }
+        .article-modal-footer {
+            padding: 20px 30px; border-top: 1px solid rgba(0,243,255,0.15);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 14px; color: rgba(255,255,255,0.5);
+            position: sticky; bottom: 0; background: var(--card-bg);
+        }
+        .article-modal::-webkit-scrollbar { width: 8px; }
+        .article-modal::-webkit-scrollbar-track { background: transparent; }
+        .article-modal::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 4px; }
     </style>
     <!-- Structured Data (JSON-LD) for SEO -->
     <script type="application/ld+json">
@@ -884,6 +935,25 @@
         </div>
     </div>
 
+    <div class="article-modal" id="articleModal">
+        <div class="article-modal-content">
+            <div class="article-modal-header">
+                <div>
+                    <h2 id="articleModalTitle">Article Title</h2>
+                    <span class="article-meta-tag" id="articleModalTag">Guide</span>
+                    <span style="margin-left:10px;color:rgba(255,255,255,0.4);font-size:13px;" id="articleModalDate"></span>
+                    <span style="margin-left:10px;color:rgba(255,255,255,0.4);font-size:13px;" id="articleModalAuthor"></span>
+                </div>
+                <button class="article-modal-close" onclick="closeArticle()">&times;</button>
+            </div>
+            <div class="article-modal-body" id="articleModalBody"></div>
+            <div class="article-modal-footer">
+                <span><i class="fas fa-book-open"></i> Nexus Arena Gaming Chronicles</span>
+                <span><a href="#" onclick="event.preventDefault(); closeArticle(); SoundManager.play('click');" style="color:var(--neon-blue);text-decoration:none;">&larr; Back to Blog</a></span>
+            </div>
+        </div>
+    </div>
+
     <div class="achievement-popup" id="achievementPopup">
         <div class="achievement-icon">&#127942;</div>
         <div class="achievement-text">
@@ -1025,14 +1095,22 @@
         ];
 
         const blogArticles = [
-            { id: 1, title: 'Top 10 Tips to Dominate Cosmic Defender', category: 'Guide', tag: 'guide', date: 'June 8, 2026', author: 'Admin', icon: '&#128640;', excerpt: 'Master the art of space combat with these pro strategies. Learn about power-up combinations, enemy patterns, and the secret to achieving 1M+ scores...', imgColor: 'linear-gradient(135deg, #0a2a4a, #1a3a5e)' },
-            { id: 2, title: 'Neon Racer X: New Tracks Coming Soon', category: 'Update', tag: 'update', date: 'June 5, 2026', author: 'Admin', icon: '&#127950;', excerpt: 'Get ready for 5 new neon-lit tracks featuring gravity-defying loops, underwater tunnels, and a cyberpunk cityscape. Here is a sneak peek...', imgColor: 'linear-gradient(135deg, #2a1a3e, #4a1a5e)' },
-            { id: 3, title: 'Quantum Puzzle: Understanding Combo Mechanics', category: 'Guide', tag: 'guide', date: 'June 1, 2026', author: 'Admin', icon: '&#129513;', excerpt: 'Deep dive into the combo system that separates casual players from puzzle masters. Discover chain reactions, color theory, and optimal board management...', imgColor: 'linear-gradient(135deg, #1a2a2a, #2a4a3e)' },
-            { id: 4, title: 'Weekly Tournament Results & Highlights', category: 'Event', tag: 'event', date: 'May 28, 2026', author: 'Admin', icon: '&#127942;', excerpt: 'Congratulations to all participants in this week\'s tournament! Check out the top plays, record-breaking moments, and upcoming championship brackets...', imgColor: 'linear-gradient(135deg, #3a2a1a, #5a3a1a)' },
-            { id: 5, title: 'Server Upgrade: Faster, Better, Stronger', category: 'News', tag: 'news', date: 'May 25, 2026', author: 'Admin', icon: '&#9889;', excerpt: 'We have upgraded our infrastructure to support 4K gaming with zero latency. Learn about the technical improvements and what they mean for your experience...', imgColor: 'linear-gradient(135deg, #1a1a3e, #2a2a5e)' },
-            { id: 6, title: 'Community Spotlight: Player of the Month', category: 'Community', tag: 'community', date: 'May 20, 2026', author: 'Admin', icon: '&#127918;', excerpt: 'Meet the top players who have been crushing the leaderboards this month. Learn their strategies, favorite games, and tips for newcomers to Nexus Arena...', imgColor: 'linear-gradient(135deg, #2a1a3e, #3a1a5e)' },
-            { id: 7, title: 'Cosmic Defender Boss Guide: Level 50+', category: 'Guide', tag: 'guide', date: 'May 15, 2026', author: 'NeonKing', icon: '&#128293;', excerpt: 'Face the fearsome Void Overlord and other end-game bosses. This guide covers attack patterns, recommended power-ups, and dodge strategies for survival.', imgColor: 'linear-gradient(135deg, #3a0a0a, #5a1a1a)' },
-            { id: 8, title: 'Achievement System: Hidden Rewards Revealed', category: 'News', tag: 'news', date: 'May 10, 2026', author: 'Admin', icon: '&#127775;', excerpt: 'Discover all secret achievements in Nexus Arena. From "Speed Demon" to "Puzzle Grandmaster", we reveal how to unlock every hidden reward.', imgColor: 'linear-gradient(135deg, #1a2a3a, #2a3a5a)' }
+            { id: 1, title: 'Top 10 Tips to Dominate Cosmic Defender', category: 'Guide', tag: 'guide', date: 'June 8, 2026', author: 'Admin', icon: '&#128640;', excerpt: 'Master the art of space combat with these pro strategies. Learn about power-up combinations, enemy patterns, and the secret to achieving 1M+ scores...', imgColor: 'linear-gradient(135deg, #0a2a4a, #1a3a5e)',
+              content: '<p>Cosmic Defender is one of the most challenging space shooters on Nexus Arena. With endless waves of alien invaders, you need more than quick reflexes to survive. Here are the top 10 tips to help you dominate the leaderboard:</p><h2>1. Master the Art of Straffing</h2><p>Never stay still. Constant lateral movement makes it harder for enemies to hit you. Use the Arrow Left and Right keys to keep moving even while shooting.</p><h2>2. Power-Up Combinations</h2><p>Some power-ups stack! Collecting two speed boosts in quick succession gives you a temporary fire-rate bonus. Experiment with different combinations to find what works best for your playstyle.</p><h2>3. Enemy Pattern Recognition</h2><p>Each enemy type follows a specific movement pattern. Learn these patterns to predict where they will be and line up your shots in advance.</p><h2>4. Save Your Bombs</h2><p>Don\'t use screen-clearing bombs on small enemies. Save them for when you are surrounded or facing a tough boss.</p><h2>5. Focus on Accuracy</h2><p>A single精准 shot is worth more than ten wild ones. Wait for enemies to align before firing. Your score multiplier increases with consecutive hits.</p><h2>6. Upgrade Strategically</h2><p>At the end of each level, you get to choose an upgrade. Prioritize shield strength and weapon spread over speed in the early game.</p><h2>7. The 1M+ Score Secret</h2><p>To break 1 million points, you need to maintain a combo chain. Killing enemies within 2 seconds of each other keeps your multiplier active. Combine this with the level-up bonus for exponential scoring.</p><h2>8. Boss Weak Points</h2><p>Every boss has a glowing weak point. Focus all your fire there. Most bosses cycle through attack patterns - learn the cycle and attack during the cooldown phase.</p><h2>9. Use the Environment</h2><p>Asteroids can be used as shields. Position yourself behind large asteroids to block enemy fire while taking out smaller threats.</p><h2>10. Practice in Training Mode</h2><p>Use the practice mode to learn enemy patterns without the pressure of losing lives. Spend at least 10 minutes per day in practice mode.</p><p>Follow these tips and you will be climbing the Nexus Arena leaderboard in no time!</p>' },
+            { id: 2, title: 'Neon Racer X: New Tracks Coming Soon', category: 'Update', tag: 'update', date: 'June 5, 2026', author: 'Admin', icon: '&#127950;', excerpt: 'Get ready for 5 new neon-lit tracks featuring gravity-defying loops, underwater tunnels, and a cyberpunk cityscape. Here is a sneak peek...', imgColor: 'linear-gradient(135deg, #2a1a3e, #4a1a5e)',
+              content: '<p>We are thrilled to announce the next major content update for Neon Racer X! Five brand-new tracks are coming to Nexus Arena, each designed to push your racing skills to the limit.</p><h2>Track 1: Neon Express</h2><p>A high-speed rail-inspired track with sharp turns and elevation changes. Race alongside holographic trains through a cyberpunk cityscape at dusk. Watch out for the spiral tunnel at the midpoint!</p><h2>Track 2: Abyss Dive</h2><p>An underwater tunnel track featuring bioluminescent coral reefs and ancient ruins. The track narrows significantly in the second half, requiring precise steering. Boost pads are strategically placed to help you through the tightest sections.</p><h2>Track 3: Gravity Loop</h2><p>This track defies physics with multiple 360-degree loops and inverted sections. Your boost meter charges faster when driving upside down. Master the loop timing to maintain top speed throughout.</p><h2>Track 4: Data Storm</h2><p>Race through a digital dimension where the track itself is made of flowing data streams. Obstacles appear and disappear in patterns. This track requires memorization and quick reactions.</p><h2>Track 5: The Gauntlet</h2><p>The ultimate challenge combining elements from all previous tracks. Features multiple path choices, dynamic obstacles, and a 3-lap format. Only the fastest racers will conquer The Gauntlet.</p><h2>Release Date</h2><p>All five tracks will be available on June 15, 2026. Existing save data will be compatible. A tournament mode with exclusive rewards will launch alongside the update.</p>' },
+            { id: 3, title: 'Quantum Puzzle: Understanding Combo Mechanics', category: 'Guide', tag: 'guide', date: 'June 1, 2026', author: 'Admin', icon: '&#129513;', excerpt: 'Deep dive into the combo system that separates casual players from puzzle masters. Discover chain reactions, color theory, and optimal board management...', imgColor: 'linear-gradient(135deg, #1a2a2a, #2a4a3e)',
+              content: '<p>Quantum Puzzle is more than just matching colors. The combo system is what separates casual players from true puzzle masters. Here is everything you need to know.</p><h2>How Combos Work</h2><p>When you swap two adjacent tiles and create a match of 3 or more, you get a base score. If the tiles that fall down create additional matches, that is a combo. Each successive chain multiplies your score.</p><h2>Combo Multiplier Table</h2><p>Chain 1: x1 | Chain 2: x2 | Chain 3: x4 | Chain 4: x8 | Chain 5+: x16. Planning 4+ chain combos is the key to high scores.</p><h2>Color Theory</h2><p>The six colors in Quantum Puzzle are not random. Blue (cyan) tiles act as wildcards in combos. Purple tiles give bonus points. Red tiles explode, clearing adjacent tiles. Green tiles multiply nearby matches. Yellow tiles add time. Orange tiles are worth double points.</p><h2>Board Management</h2><p>Keep your board flat. Avoid leaving single tiles at the top as they limit your options. Focus on clearing from the bottom up. Use the edges of the board to set up cascading chain reactions.</p><h2>Advanced Techniques</h2><p>The \'L-Shape\' technique creates two separate matches from one swap. The \'T-Spin\' clears a row and column simultaneously. The \'Rainbow\' chain uses all six colors in sequence for a massive score bonus.</p><h2>Practice Drills</h2><p>Start with 5-minute speed runs. Focus on speed over score. Once you can make 10 matches per minute, switch to precision mode where you aim for 3+ chain combos exclusively.</p>' },
+            { id: 4, title: 'Weekly Tournament Results & Highlights', category: 'Event', tag: 'event', date: 'May 28, 2026', author: 'Admin', icon: '&#127942;', excerpt: 'Congratulations to all participants in this week\'s tournament! Check out the top plays, record-breaking moments, and upcoming championship brackets...', imgColor: 'linear-gradient(135deg, #3a2a1a, #5a3a1a)',
+              content: '<p>This week\'s Nexus Arena tournament was our biggest yet! With over 5,000 participants across all three games, the competition was fierce. Here are the highlights.</p><h2>Cosmic Defender Champion</h2><p><strong>NeonKing</strong> takes the crown with an incredible score of 2,847,500 points. He survived 187 waves and reached level 94. His secret? A perfect power-up rotation that kept his shields maxed.</p><h2>Neon Racer X Winner</h2><p><strong>StarLord</strong> set a new world record on the Neon Express track: 1:23.456. His drift technique through the spiral tunnel was flawless.</p><h2>Quantum Puzzle Master</h2><p><strong>QuantumX</strong> achieved a 12-chain combo worth 1.2 million points in a single move. The crowd went wild as the board cleared three times in succession.</p><h2>Record-Breaking Moments</h2><p>Most points in a single game: 3.1M (Cosmic Defender). Longest combo chain: 14 (Quantum Puzzle). Fastest lap: 0:58.234 (Neon Racer X).</p><h2>Upcoming Championship</h2><p>The next tournament will be on June 15, 2026, featuring the new Neon Racer X tracks. Registration is open now. Grand prize: a custom Nexus Arena profile badge and 10,000 bonus points.</p><h2>Thank You</h2><p>Thank you to everyone who participated. Your passion makes Nexus Arena the best gaming community on the web!</p>' },
+            { id: 5, title: 'Server Upgrade: Faster, Better, Stronger', category: 'News', tag: 'news', date: 'May 25, 2026', author: 'Admin', icon: '&#9889;', excerpt: 'We have upgraded our infrastructure to support 4K gaming with zero latency. Learn about the technical improvements and what they mean for your experience...', imgColor: 'linear-gradient(135deg, #1a1a3e, #2a2a5e)',
+              content: '<p>We are excited to announce a major infrastructure upgrade that brings faster load times, smoother gameplay, and better reliability to Nexus Arena.</p><h2>What Changed</h2><p>We migrated to a global CDN with edge caching, upgraded our servers to the latest generation processors, and implemented WebSocket optimizations for real-time leaderboard updates.</p><h2>Performance Improvements</h2><p>Page load time reduced by 60% (from 2.5s to 0.9s). Game frame rate improved from 30fps to 60fps on mobile devices. Leaderboard updates now happen in under 100ms.</p><h2>4K Ready</h2><p>All games now support 4K resolution on compatible displays. The canvas rendering pipeline has been optimized to deliver smooth 60fps even at 4K. Anti-aliasing has been improved for sharper visuals.</p><h2>Zero Latency</h2><p>Our new network architecture reduces latency by 80%. Game actions register instantly, making the experience feel more responsive than ever before.</p><h2>Reliability</h2><p>We now have 99.9% uptime SLA with automatic failover. Your game progress is saved in real-time, so you never lose your score even if your connection drops.</p><h2>What This Means For You</h2><p>Faster loading, smoother gameplay, better graphics, and a more reliable experience. All of this is completely free - no subscription, no ads, no catch.</p>' },
+            { id: 6, title: 'Community Spotlight: Player of the Month', category: 'Community', tag: 'community', date: 'May 20, 2026', author: 'Admin', icon: '&#127918;', excerpt: 'Meet the top players who have been crushing the leaderboards this month. Learn their strategies, favorite games, and tips for newcomers to Nexus Arena...', imgColor: 'linear-gradient(135deg, #2a1a3e, #3a1a5e)',
+              content: '<p>Every month, we spotlight the most dedicated and skilled players in the Nexus Arena community. This May, we have some truly exceptional gamers to celebrate.</p><h2>Player of the Month: NeonKing</h2><p>With over 985,000 total points and a level 87 profile, NeonKing is a force to be reckoned with. We sat down with him to learn his secrets.</p><p><strong>Q:</strong> How did you get started with Nexus Arena?<br><strong>A:</strong> I found it while looking for browser games that don\'t require downloads. The instant play feature hooked me immediately.</p><p><strong>Q:</strong> What is your favorite game?<br><strong>A:</strong> Cosmic Defender. The endless mode means there is always a new challenge. I love the power-up system.</p><p><strong>Q:</strong> Any tips for newcomers?<br><strong>A:</strong> Focus on survival first, score second. Learn enemy patterns. Don\'t chase power-ups if it means taking damage.</p><h2>Runner Up: StarLord</h2><p>StarLord dominates the Neon Racer X leaderboard. His advice: \'Learn one track at a time. Master the turns before worrying about speed.\'</p><h2>Rising Star: QuantumX</h2><p>QuantumX climbed 40 levels in two weeks. His puzzle strategy: \'Always set up cascades. A 3-chain is worth more than ten single matches.\'</p><h2>Community Choice: PixelHero</h2><p>Voted by the community for being the most helpful player in chat. PixelHero runs weekly training sessions for new players every Saturday.</p>' },
+            { id: 7, title: 'Cosmic Defender Boss Guide: Level 50+', category: 'Guide', tag: 'guide', date: 'May 15, 2026', author: 'NeonKing', icon: '&#128293;', excerpt: 'Face the fearsome Void Overlord and other end-game bosses. This guide covers attack patterns, recommended power-ups, and dodge strategies for survival.', imgColor: 'linear-gradient(135deg, #3a0a0a, #5a1a1a)',
+              content: '<p>Welcome to the end-game. Levels 50+ in Cosmic Defender introduce boss enemies that require strategy, not just reflexes. Here is your complete boss guide.</p><h2>The Void Overlord (Level 50)</h2><p>The first major boss. Attacks: Shockwave (dodge by jumping), Laser Barrage (hide behind asteroids), Summon Minions (clear them quickly). Weak point: the glowing core on its underside. Recommended power-ups: Shield Max, Triple Shot, Speed Boost.</p><h2>The Quantum Beast (Level 75)</h2><p>This boss phases between dimensions. When it flickers, it is invulnerable. Attack only when solid. It spawns mirrors that reflect your bullets. Destroy mirrors first. Weak point: the crystal on its back. Recommended: Piercing Shot, Homing Missiles.</p><h2>The Final Form (Level 100)</h2><p>The ultimate challenge. Combines all previous boss mechanics. Four phases with increasing difficulty. Phase 4 requires perfect execution. No recommended power-up setup - adapt to its attack patterns. Focus on survival. A single mistake means instant death.</p><h2>General Boss Tips</h2><p>Always keep moving. Learn each boss\'s attack telegraph. Save your special abilities for phase transitions. The explosion from a defeated boss damages nearby enemies - use this strategically.</p><h2>Rewards</h2><p>Defeating a boss grants 100,000 bonus points and unlocks exclusive cosmetic items for your profile.</p>' },
+            { id: 8, title: 'Achievement System: Hidden Rewards Revealed', category: 'News', tag: 'news', date: 'May 10, 2026', author: 'Admin', icon: '&#127775;', excerpt: 'Discover all secret achievements in Nexus Arena. From "Speed Demon" to "Puzzle Grandmaster", we reveal how to unlock every hidden reward.', imgColor: 'linear-gradient(135deg, #1a2a3a, #2a3a5a)',
+              content: '<p>Nexus Arena is packed with hidden achievements that reward skill, dedication, and creativity. Here is the complete guide to unlocking every one.</p><h2>Speed Demon</h2><p>Reach level 20 in Neon Racer X without crashing. Tip: Focus on boost management and memorize track layouts.</p><h2>Puzzle Grandmaster</h2><p>Achieve a 10-chain combo in Quantum Puzzle. The key is setting up cascading matches. Practice the L-Shape technique.</p><h2>Unstoppable</h2><p>Score 500,000 points in a single Cosmic Defender run. Tip: Maintain your combo chain above x10 for the entire run.</p><h2>Treasure Hunter</h2><p>Collect 100 power-ups across all games. This achievement tracks cumulative pickups, so it will unlock naturally over time.</p><h2>Social Butterfly</h2><p>Play all three games in a single session. Simply launch each game at least once without closing the browser tab.</p><h2>Veteran</h2><p>Play 500 games total. This is a dedication achievement that rewards long-term players.</p><h2>Secret Achievements</h2><p>Score exactly 69,420 points (Easter Egg). Beat the developer\'s high score (contact us on Discord for details). Be the first player to reach level 100 (Hall of Fame induction).</p><h2>Rewards</h2><p>Each achievement unlocks a unique badge for your profile. Collect all 15 achievements to unlock the legendary \'Nexus Master\' title and a permanent 2x score multiplier.</p>' }
         ];
 
         function saveToLocalStorage() {
@@ -1743,7 +1821,7 @@
                         '</div>' +
                         '<h3 itemprop="headline">' + a.title + '</h3>' +
                         '<p itemprop="description">' + a.excerpt + '</p>' +
-                        '<a href="/blog/' + slug + '.html" class="read-more" itemprop="url" onclick="event.preventDefault(); SoundManager.play(\'click\'); showToast(\'Opening: ' + a.title.replace(/'/g, "\\'") + '\')">Read More <i class="fas fa-arrow-right"></i></a>' +
+                        '<a href="#" class="read-more" itemprop="url" onclick="event.preventDefault(); openArticle(' + a.id + '); SoundManager.play(\'click\');">Read More <i class="fas fa-arrow-right"></i></a>' +
                     '</div>' +
                 '</article>';
             }).join('');
@@ -1758,7 +1836,7 @@
                     '<td><span class="blog-tag tag-' + a.tag + '">' + a.category + '</span></td>' +
                     '<td style="color:rgba(255,255,255,0.6);">' + a.date + '</td>' +
                     '<td>' + a.author + '</td>' +
-                    '<td><a href="#" onclick="event.preventDefault(); SoundManager.play(\'click\'); showToast(\'Opening: ' + a.title.replace(/'/g, "\\'") + '\')" style="color:var(--neon-blue);text-decoration:none;"><i class="fas fa-external-link-alt"></i></a></td>' +
+                    '<td><a href="#" onclick="event.preventDefault(); openArticle(' + a.id + '); SoundManager.play(\'click\');" style="color:var(--neon-blue);text-decoration:none;"><i class="fas fa-external-link-alt"></i></a></td>' +
                 '</tr>';
             }).join('');
         }
@@ -1784,6 +1862,33 @@
             SoundManager.play('achievement');
             setTimeout(() => popup.classList.remove('show'), 3000);
         }
+
+        function openArticle(id) {
+            const article = blogArticles.find(a => a.id === id);
+            if (!article) return;
+            document.getElementById('articleModalTitle').textContent = article.title;
+            document.getElementById('articleModalTag').textContent = article.category;
+            document.getElementById('articleModalTag').className = 'article-meta-tag blog-tag tag-' + article.tag;
+            document.getElementById('articleModalDate').textContent = '<i class="fas fa-calendar"></i> ' + article.date;
+            document.getElementById('articleModalDate').innerHTML = '<i class="fas fa-calendar"></i> ' + article.date;
+            document.getElementById('articleModalAuthor').innerHTML = '<i class="fas fa-user"></i> ' + article.author;
+            document.getElementById('articleModalBody').innerHTML = article.content;
+            document.getElementById('articleModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeArticle() {
+            document.getElementById('articleModal').classList.remove('active');
+            document.body.style.overflow = '';
+            SoundManager.play('click');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const art = document.getElementById('articleModal');
+                if (art.classList.contains('active')) closeArticle();
+            }
+        });
 
         function showToast(msg) {
             const t = document.getElementById('toast');

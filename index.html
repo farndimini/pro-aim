@@ -854,6 +854,7 @@
     </div>
 
     <div class="blog-grid" id="blogGrid"></div>
+    <div id="articleInline" class="article-content" style="display:none;max-width:900px;margin:3rem auto;padding:2rem;background:var(--card);border-radius:20px;border:1px solid rgba(0,240,255,0.15);"></div>
 </section>
 
 <footer class="footer">
@@ -1561,40 +1562,9 @@
         );
         return html;
     }
-    function openArticle(id) {
-        const article = blogArticles.find(a => a.id === id);
-        if (!article) return;
-        const content = document.getElementById('articleViewContent');
-        // Process content: add h2 IDs and clickable ToC
-        const processedContent = processArticleContent(article.content);
-        // JSON-LD
-        const jsonLd = {
-            "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": article.title,
-            "description": article.excerpt,
-            "author": { "@type": "Person", "name": "James Mitchell" },
-            "datePublished": article.date,
-            "image": article.image
-        };
-        const jsonLdScript = document.getElementById('articleJsonLd');
-        if (jsonLdScript) jsonLdScript.remove();
-        const script = document.createElement('script');
-        script.id = 'articleJsonLd';
-        script.type = 'application/ld+json';
-        script.textContent = JSON.stringify(jsonLd);
-        document.head.appendChild(script);
-        // Update page meta
-        const ogTitle = document.querySelector('meta[property="og:title"]');
-        const ogDesc = document.querySelector('meta[property="og:description"]');
-        const twTitle = document.querySelector('meta[name="twitter:title"]');
-        const twDesc = document.querySelector('meta[name="twitter:description"]');
-        document.title = article.title + ' | Pro Aim';
-        if (ogTitle) ogTitle.content = article.title + ' | Pro Aim';
-        if (ogDesc) ogDesc.content = article.excerpt;
-        if (twTitle) twTitle.content = article.title + ' | Pro Aim';
-        if (twDesc) twDesc.content = article.excerpt;
-        content.innerHTML = `
+    function getArticleHTML(article) {
+        const processed = processArticleContent(article.content);
+        return `
             <div style="margin-bottom: 1.5rem;">
                 <span class="blog-tag">${article.tag}</span>
                 <h1 style="font-size: 1.8rem; margin: 1rem 0; color: var(--primary);">${article.title}</h1>
@@ -1611,7 +1581,7 @@
                 </div>
             </div>
             <img src="${article.image}" style="width: 100%; border-radius: 15px; margin-bottom: 1.5rem;" onerror="this.style.display='none'">
-            <div class="article-content" style="line-height: 1.8; font-size: 1.05rem;">${processedContent}</div>
+            <div class="article-content" style="line-height: 1.8; font-size: 1.05rem;">${processed}</div>
             <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
                 <h3 style="color: var(--primary); margin-bottom: 1rem;">Share this article</h3>
                 <div class="social-links" style="justify-content: flex-start;">
@@ -1622,6 +1592,25 @@
                 </div>
             </div>
         `;
+    }
+    function updateArticleMeta(article) {
+        const jsonLd = { "@context": "https://schema.org", "@type": "Article", "headline": article.title, "description": article.excerpt, "author": { "@type": "Person", "name": "James Mitchell" }, "datePublished": article.date, "image": article.image };
+        const old = document.getElementById('articleJsonLd');
+        if (old) old.remove();
+        const s = document.createElement('script');
+        s.id = 'articleJsonLd'; s.type = 'application/ld+json'; s.textContent = JSON.stringify(jsonLd);
+        document.head.appendChild(s);
+        document.title = article.title + ' | Pro Aim';
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        const ogDesc = document.querySelector('meta[property="og:description"]');
+        if (ogTitle) ogTitle.content = article.title + ' | Pro Aim';
+        if (ogDesc) ogDesc.content = article.excerpt;
+    }
+    function openArticle(id) {
+        const article = blogArticles.find(a => a.id === id);
+        if (!article) return;
+        updateArticleMeta(article);
+        document.getElementById('articleViewContent').innerHTML = getArticleHTML(article);
         openModal('article');
     }
     function shareArticle(type, title) {
@@ -1750,7 +1739,18 @@
         const articleTitle = params.get('article');
         if (articleTitle) {
             const found = blogArticles.find(a => a.title === decodeURIComponent(articleTitle));
-            if (found) setTimeout(() => openArticle(found.id), 500);
+            if (found) {
+                updateArticleMeta(found);
+                const inlineDiv = document.getElementById('articleInline');
+                const grid = document.getElementById('blogGrid');
+                if (inlineDiv) {
+                    grid.style.display = 'none';
+                    inlineDiv.style.display = 'block';
+                    inlineDiv.innerHTML = getArticleHTML(found);
+                }
+                document.getElementById('articleViewContent').innerHTML = getArticleHTML(found);
+                openModal('article');
+            }
         }
 
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
