@@ -3,7 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Aim - Professional Aim Trainer</title>
+    <title>Pro Aim - Professional Aim Trainer | Free FPS Aim Practice Online</title>
+    <meta name="description" content="Pro Aim is a free browser-based aim trainer. Improve your FPS aim with Classic, Rapid Fire, and Precision modes. 25+ pro guides, tips, and daily routines.">
+    <meta name="keywords" content="aim trainer, FPS aim practice, free aim trainer, aim training, Valorant aim, CS2 aim, Pro Aim">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Pro Aim Team">
+    <link rel="canonical" href="https://farndimini.github.io/pro-aim/">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://farndimini.github.io/pro-aim/">
+    <meta property="og:title" content="Pro Aim - Professional Aim Trainer | Free FPS Aim Practice">
+    <meta property="og:description" content="Free browser-based aim trainer with 3 modes and 25+ pro guides. Improve your FPS aim today.">
+    <meta property="og:image" content="https://farndimini.github.io/pro-aim/og-image.png">
+    <meta property="og:locale" content="en_US">
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pro Aim - Professional Aim Trainer">
+    <meta name="twitter:description" content="Free browser-based aim trainer. Improve your FPS aim now.">
+    <meta name="twitter:image" content="https://farndimini.github.io/pro-aim/og-image.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -1482,10 +1499,36 @@
         const article = blogArticles.find(a => a.id === id);
         if (!article) return;
         const content = document.getElementById('articleViewContent');
+        // JSON-LD structured data for SEO
+        const jsonLd = {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": article.title,
+            "description": article.excerpt,
+            "author": { "@type": "Organization", "name": "Pro Aim Team" },
+            "datePublished": article.date,
+            "image": article.image
+        };
+        const jsonLdScript = document.getElementById('articleJsonLd');
+        if (jsonLdScript) jsonLdScript.remove();
+        const script = document.createElement('script');
+        script.id = 'articleJsonLd';
+        script.type = 'application/ld+json';
+        script.textContent = JSON.stringify(jsonLd);
+        document.head.appendChild(script);
+        // Update page meta for social sharing
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        const ogDesc = document.querySelector('meta[property="og:description"]');
+        const twTitle = document.querySelector('meta[name="twitter:title"]');
+        const twDesc = document.querySelector('meta[name="twitter:description"]');
+        if (ogTitle) ogTitle.content = article.title + ' | Pro Aim';
+        if (ogDesc) ogDesc.content = article.excerpt;
+        if (twTitle) twTitle.content = article.title + ' | Pro Aim';
+        if (twDesc) twDesc.content = article.excerpt;
         content.innerHTML = `
             <div style="margin-bottom: 1.5rem;">
                 <span class="blog-tag">${article.tag}</span>
-                <h2 style="font-size: 1.8rem; margin: 1rem 0; color: var(--primary);">${article.title}</h2>
+                <h1 style="font-size: 1.8rem; margin: 1rem 0; color: var(--primary);">${article.title}</h1>
                 <div class="blog-meta" style="font-size: 0.85rem;">
                     <span><i class="far fa-calendar"></i> ${article.date}</span>
                     <span><i class="far fa-clock"></i> ${article.readTime}</span>
@@ -1497,14 +1540,20 @@
             <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
                 <h3 style="color: var(--primary); margin-bottom: 1rem;">Share this article</h3>
                 <div class="social-links" style="justify-content: flex-start;">
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-whatsapp"></i></a>
-                    <a href="#"><i class="fas fa-link"></i></a>
+                    <a href="#" onclick="shareArticle('twitter','${article.title}')"><i class="fab fa-twitter"></i></a>
+                    <a href="#" onclick="shareArticle('facebook','${article.title}')"><i class="fab fa-facebook"></i></a>
+                    <a href="#" onclick="shareArticle('whatsapp','${article.title}')"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" onclick="shareArticle('copy','${article.title}')"><i class="fas fa-link"></i></a>
                 </div>
             </div>
         `;
         openModal('article');
+    }
+    function shareArticle(type, title) {
+        const url = window.location.href.split('?')[0] + '?article=' + encodeURIComponent(title);
+        const links = { twitter: 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(title) + '&url=' + encodeURIComponent(url), facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), whatsapp: 'https://wa.me/?text=' + encodeURIComponent(title + ' ' + url) };
+        if (type === 'copy') { navigator.clipboard.writeText(url); alert('Link copied!'); return; }
+        window.open(links[type], '_blank', 'width=600,height=400');
     }
 
     function openEditor() {
@@ -1620,6 +1669,14 @@
         updatePlayerUI();
         initBots();
         simulateBotActivity();
+
+        // Open article from URL query parameter (?article=Title)
+        const params = new URLSearchParams(window.location.search);
+        const articleTitle = params.get('article');
+        if (articleTitle) {
+            const found = blogArticles.find(a => a.title === decodeURIComponent(articleTitle));
+            if (found) setTimeout(() => openArticle(found.id), 500);
+        }
 
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {

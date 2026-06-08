@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://farndimini.github.io/pro-aim/sitemap.xml

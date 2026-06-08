@@ -3,7 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS ARENA - Ultimate Online Gaming</title>
+    <title>NEXUS ARENA - ألعاب المتصفح ثلاثية الأبعاد | Free Online Browser Games</title>
+    <meta name="description" content="Nexus Arena: العب ألعاب متصفح مجانية ثلاثية الأبعاد - Cosmic Defender, Neon Racer X, Quantum Puzzle. لا يحتاج تسجيل، قيادة متصدرين حية، مستويات غير محدودة.">
+    <meta name="keywords" content="browser games, free online games, 3D browser games, cosmic defender, neon racer, quantum puzzle, gaming leaderboard, ألعاب متصفح, ألعاب مجانية">
+    <meta name="author" content="Nexus Arena">
+    <meta name="robots" content="index, follow">
+    <meta name="revisit-after" content="7 days">
+    <meta name="language" content="Arabic, English">
+    <!-- Open Graph (Facebook, LinkedIn, Discord) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexusarena.github.io/">
+    <meta property="og:title" content="NEXUS ARENA - Ultimate Free Browser Gaming">
+    <meta property="og:description" content="Experience next-gen 3D browser gaming with real-time leaderboards, infinite levels, and zero login. Compete globally!">
+    <meta property="og:image" content="https://nexusarena.github.io/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NEXUS ARENA - Free Browser Games">
+    <meta name="twitter:description" content="Play 3D browser games instantly. No sign-up, live leaderboards, infinite levels!">
+    <meta name="twitter:image" content="https://nexusarena.github.io/og-image.jpg">
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://nexusarena.github.io/">
+    <!-- Sitemap -->
+    <link rel="sitemap" type="application/xml" href="https://nexusarena.github.io/sitemap.xml">
+    <!-- Robots -->
+    <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -494,7 +519,72 @@
             opacity: 0; transition: opacity 0.4s; pointer-events: none;
         }
         .toast.show { opacity: 1; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
     </style>
+    <!-- Structured Data (JSON-LD) for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Nexus Arena",
+        "url": "https://nexusarena.github.io/",
+        "description": "Free online 3D browser gaming platform with real-time leaderboards and infinite levels.",
+        "inLanguage": ["en", "ar"],
+        "applicationCategory": "Game",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Nexus Arena Games",
+        "description": "Collection of free browser games",
+        "numberOfItems": 3,
+        "itemListElement": [
+            {
+                "@type": "VideoGame",
+                "position": 1,
+                "name": "Cosmic Defender",
+                "description": "Space shooter game with endless waves of alien invaders",
+                "genre": ["Action", "Shooter"],
+                "applicationCategory": "Game"
+            },
+            {
+                "@type": "VideoGame",
+                "position": 2,
+                "name": "Neon Racer X",
+                "description": "Futuristic neon racing game",
+                "genre": ["Racing", "Arcade"],
+                "applicationCategory": "Game"
+            },
+            {
+                "@type": "VideoGame",
+                "position": 3,
+                "name": "Quantum Puzzle",
+                "description": "Color matching puzzle game with combo system",
+                "genre": ["Puzzle", "Strategy"],
+                "applicationCategory": "Game"
+            }
+        ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexusarena.github.io/"},
+            {"@type": "ListItem", "position": 2, "name": "Games", "item": "https://nexusarena.github.io/#games"},
+            {"@type": "ListItem", "position": 3, "name": "Leaderboard", "item": "https://nexusarena.github.io/#leaderboard"},
+            {"@type": "ListItem", "position": 4, "name": "Blog", "item": "https://nexusarena.github.io/#blog"}
+        ]
+    }
+    </script>
 </head>
 <body>
     <div class="bg-animation"></div>
@@ -535,6 +625,7 @@
         </div>
         <div class="hero-content">
             <h1>NEXUS ARENA</h1>
+            <p class="sr-only">Free online 3D browser gaming platform - play Cosmic Defender, Neon Racer X, and Quantum Puzzle</p>
             <p>Experience next-gen 3D browser gaming with real-time leaderboards, infinite levels, and zero login required. Compete globally and become a legend.</p>
             <div class="cta-buttons">
                 <button class="btn btn-primary" onclick="scrollToSection('games')">
@@ -732,11 +823,11 @@
                 <a href="#">Terms of Service</a>
             </div>
             <div class="social-links">
-                <a href="#"><i class="fab fa-discord"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
-                <a href="#"><i class="fab fa-twitch"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#" rel="noopener" target="_blank" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                <a href="#" rel="noopener" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" rel="noopener" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="#" rel="noopener" target="_blank" aria-label="Twitch"><i class="fab fa-twitch"></i></a>
+                <a href="#" rel="noopener" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
             </div>
             <div class="copyright">
                 <p> 2026 Nexus Arena. All rights reserved. Built for gamers, by gamers.</p>
@@ -1639,19 +1730,20 @@
         function renderBlog() {
             const grid = document.getElementById('blogGrid');
             grid.innerHTML = blogArticles.map(a => {
-                return '<article class="blog-card" data-id="' + a.id + '">' +
-                    '<div class="blog-image" style="background:' + a.imgColor + '">' +
-                        '<span>' + a.icon + '</span>' +
+                const slug = a.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '');
+                return '<article class="blog-card" itemscope itemtype="https://schema.org/Article" data-id="' + a.id + '">' +
+                    '<div class="blog-image" style="background:' + a.imgColor + '" role="img" aria-label="' + a.title + '">' +
+                        '<span itemprop="thumbnail">' + a.icon + '</span>' +
                     '</div>' +
                     '<div class="blog-content">' +
                         '<div class="blog-meta">' +
-                            '<span><i class="fas fa-calendar"></i> ' + a.date + '</span>' +
-                            '<span><i class="fas fa-user"></i> ' + a.author + '</span>' +
-                            '<span class="blog-tag tag-' + a.tag + '">' + a.category + '</span>' +
+                            '<span><i class="fas fa-calendar"></i> <time datetime="' + a.date.replace(' ', '-') + '" itemprop="datePublished">' + a.date + '</time></span>' +
+                            '<span><i class="fas fa-user"></i> <span itemprop="author">' + a.author + '</span></span>' +
+                            '<span class="blog-tag tag-' + a.tag + '" itemprop="articleSection">' + a.category + '</span>' +
                         '</div>' +
-                        '<h3>' + a.title + '</h3>' +
-                        '<p>' + a.excerpt + '</p>' +
-                        '<a href="#" class="read-more" onclick="event.preventDefault(); SoundManager.play(\'click\'); showToast(\'Opening: ' + a.title.replace(/'/g, "\\'") + '\')">Read More <i class="fas fa-arrow-right"></i></a>' +
+                        '<h3 itemprop="headline">' + a.title + '</h3>' +
+                        '<p itemprop="description">' + a.excerpt + '</p>' +
+                        '<a href="/blog/' + slug + '.html" class="read-more" itemprop="url" onclick="event.preventDefault(); SoundManager.play(\'click\'); showToast(\'Opening: ' + a.title.replace(/'/g, "\\'") + '\')">Read More <i class="fas fa-arrow-right"></i></a>' +
                     '</div>' +
                 '</article>';
             }).join('');
