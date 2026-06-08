@@ -7,7 +7,7 @@
     <meta name="description" content="Pro Aim is a free browser-based aim trainer. Improve your FPS aim with Classic, Rapid Fire, and Precision modes. 25+ pro guides, tips, and daily routines.">
     <meta name="keywords" content="aim trainer, FPS aim practice, free aim trainer, aim training, Valorant aim, CS2 aim, Pro Aim">
     <meta name="robots" content="index, follow">
-    <meta name="author" content="Pro Aim Team">
+    <meta name="author" content="James Mitchell">
     <link rel="canonical" href="https://farndimini.github.io/pro-aim/">
     <!-- Open Graph -->
     <meta property="og:type" content="website">
@@ -404,6 +404,30 @@
         .blog-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.4; }
         .blog-excerpt { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem; }
         .blog-meta { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.75rem; }
+
+        /* Blog table styling */
+        .article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .article-content th { background: linear-gradient(135deg, var(--primary), var(--accent)); color: var(--dark); padding: 14px 18px; text-align: left; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .article-content td { padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.9rem; }
+        .article-content tr { transition: 0.2s; }
+        .article-content tr:hover td { background: rgba(0,240,255,0.04); }
+        .article-content tr:last-child td { border-bottom: none; }
+        /* Author card */
+        .author-card { display: flex; align-items: center; gap: 1rem; padding: 1.2rem 1.5rem; background: var(--glass); border-radius: 12px; margin: 1.5rem 0; border: 1px solid rgba(255,255,255,0.06); }
+        .author-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; color: var(--dark); flex-shrink: 0; }
+        .author-info { flex: 1; }
+        .author-name { font-weight: 700; color: var(--primary); font-size: 0.95rem; }
+        .author-bio { color: var(--text-muted); font-size: 0.8rem; }
+        /* ToC anchor links */
+        .toc-link { color: var(--primary); text-decoration: none; transition: 0.2s; }
+        .toc-link:hover { color: var(--secondary); text-decoration: underline; }
+        .article-content h2 { margin-top: 2.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.06); color: var(--primary); font-size: 1.5rem; }
+        .article-content h2:first-of-type { margin-top: 0; border-top: none; }
+        .article-content p { margin: 1rem 0; line-height: 1.8; }
+        .article-content ul, .article-content ol { margin: 1rem 0; padding-left: 1.5rem; }
+        .article-content li { margin: 0.5rem 0; line-height: 1.7; }
+        .article-content a { color: var(--primary); text-decoration: underline; transition: 0.2s; }
+        .article-content a:hover { color: var(--secondary); }
 
         .modal {
             display: none;
@@ -1495,17 +1519,60 @@
         });
     }
 
+    function processArticleContent(html) {
+        // Add IDs to all h2 tags and build anchors map
+        let idCounter = 0;
+        const headingMap = {};
+        html = html.replace(/<h2>(.*?)<\/h2>/g, (match, text) => {
+            idCounter++;
+            const id = 'h' + idCounter;
+            const clean = text.replace(/<[^>]*>/g, '').trim();
+            headingMap[clean] = id;
+            return `<h2 id="${id}">${text}</h2>`;
+        });
+        // Convert ToC list items to clickable anchor links
+        html = html.replace(
+            /<ul>\s*<li>Table of Contents<\/li>/i,
+            '<ul class="toc-list"><li>Table of Contents</li>'
+        );
+        // Find the ToC ul (first ul after "Table of Contents" heading) and make its items links
+        html = html.replace(
+            /(<h2[^>]*>Table of Contents<\/h2>\s*<ul[^>]*>)([\s\S]*?)(<\/ul>)/i,
+            (match, open, items, close) => {
+                const linkedItems = items.replace(
+                    /<li>(.*?)<\/li>/g,
+                    (liMatch, text) => {
+                        const plain = text.replace(/<[^>]*>/g, '').trim();
+                        const targetId = headingMap[plain] || headingMap[Object.keys(headingMap).find(k => k.toLowerCase() === plain.toLowerCase())];
+                        if (targetId) {
+                            return `<li><a class="toc-link" href="#${targetId}">${text}</a></li>`;
+                        }
+                        // "FAQ" maps to the last h2 containing FAQ
+                        if (plain === 'FAQ') {
+                            const faqId = headingMap[Object.keys(headingMap).find(k => k === 'FAQ')];
+                            if (faqId) return `<li><a class="toc-link" href="#${faqId}">${text}</a></li>`;
+                        }
+                        return liMatch;
+                    }
+                );
+                return open + linkedItems + close;
+            }
+        );
+        return html;
+    }
     function openArticle(id) {
         const article = blogArticles.find(a => a.id === id);
         if (!article) return;
         const content = document.getElementById('articleViewContent');
-        // JSON-LD structured data for SEO
+        // Process content: add h2 IDs and clickable ToC
+        const processedContent = processArticleContent(article.content);
+        // JSON-LD
         const jsonLd = {
             "@context": "https://schema.org",
             "@type": "Article",
             "headline": article.title,
             "description": article.excerpt,
-            "author": { "@type": "Organization", "name": "Pro Aim Team" },
+            "author": { "@type": "Person", "name": "James Mitchell" },
             "datePublished": article.date,
             "image": article.image
         };
@@ -1516,11 +1583,12 @@
         script.type = 'application/ld+json';
         script.textContent = JSON.stringify(jsonLd);
         document.head.appendChild(script);
-        // Update page meta for social sharing
+        // Update page meta
         const ogTitle = document.querySelector('meta[property="og:title"]');
         const ogDesc = document.querySelector('meta[property="og:description"]');
         const twTitle = document.querySelector('meta[name="twitter:title"]');
         const twDesc = document.querySelector('meta[name="twitter:description"]');
+        document.title = article.title + ' | Pro Aim';
         if (ogTitle) ogTitle.content = article.title + ' | Pro Aim';
         if (ogDesc) ogDesc.content = article.excerpt;
         if (twTitle) twTitle.content = article.title + ' | Pro Aim';
@@ -1532,11 +1600,17 @@
                 <div class="blog-meta" style="font-size: 0.85rem;">
                     <span><i class="far fa-calendar"></i> ${article.date}</span>
                     <span><i class="far fa-clock"></i> ${article.readTime}</span>
-                    <span><i class="far fa-user"></i> Pro Aim Team</span>
+                </div>
+                <div class="author-card" style="margin: 1.5rem 0;">
+                    <div class="author-avatar">JM</div>
+                    <div class="author-info">
+                        <div class="author-name">James Mitchell</div>
+                        <div class="author-bio">Professional FPS coach and aim training specialist with 8+ years of experience. Former CS:GO semi-pro and certified esports fitness trainer.</div>
+                    </div>
                 </div>
             </div>
             <img src="${article.image}" style="width: 100%; border-radius: 15px; margin-bottom: 1.5rem;" onerror="this.style.display='none'">
-            <div style="line-height: 1.8; font-size: 1.05rem;">${article.content}</div>
+            <div class="article-content" style="line-height: 1.8; font-size: 1.05rem;">${processedContent}</div>
             <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
                 <h3 style="color: var(--primary); margin-bottom: 1rem;">Share this article</h3>
                 <div class="social-links" style="justify-content: flex-start;">
