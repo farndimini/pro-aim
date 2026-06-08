@@ -381,6 +381,9 @@
             border: 1px solid rgba(123, 45, 255, 0.2);
             transition: all 0.3s;
             cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
         .blog-card:hover {
             transform: translateY(-10px);
@@ -1502,9 +1505,13 @@
         const container = document.getElementById('blogGrid');
         container.innerHTML = '';
         blogArticles.forEach(article => {
-            const card = document.createElement('div');
+            const card = document.createElement('a');
             card.className = 'blog-card';
-            card.onclick = () => openArticle(article.id);
+            card.href = 'articles/' + getArticleSlug(article.title) + '/';
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                openArticle(article.id);
+            });
             card.innerHTML = `
                 <div class="blog-image"><img src="${article.image}" alt="${article.title}" onerror="this.style.display='none'"></div>
                 <div class="blog-content">
@@ -1521,6 +1528,10 @@
         });
     }
 
+    function getArticleSlug(title) {
+        const short = title.replace(/:.*$/, '');
+        return short.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    }
     function processArticleContent(html) {
         // Add IDs to all h2 tags and build anchors map
         let idCounter = 0;
@@ -1585,10 +1596,10 @@
             <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
                 <h3 style="color: var(--primary); margin-bottom: 1rem;">Share this article</h3>
                 <div class="social-links" style="justify-content: flex-start;">
-                    <a href="#" onclick="shareArticle('twitter','${article.title}')"><i class="fab fa-twitter"></i></a>
-                    <a href="#" onclick="shareArticle('facebook','${article.title}')"><i class="fab fa-facebook"></i></a>
-                    <a href="#" onclick="shareArticle('whatsapp','${article.title}')"><i class="fab fa-whatsapp"></i></a>
-                    <a href="#" onclick="shareArticle('copy','${article.title}')"><i class="fas fa-link"></i></a>
+                    <a href="#" onclick="shareArticle('twitter','${article.title}',${article.id})"><i class="fab fa-twitter"></i></a>
+                    <a href="#" onclick="shareArticle('facebook','${article.title}',${article.id})"><i class="fab fa-facebook"></i></a>
+                    <a href="#" onclick="shareArticle('whatsapp','${article.title}',${article.id})"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" onclick="shareArticle('copy','${article.title}',${article.id})"><i class="fas fa-link"></i></a>
                 </div>
             </div>
         `;
@@ -1613,8 +1624,9 @@
         document.getElementById('articleViewContent').innerHTML = getArticleHTML(article);
         openModal('article');
     }
-    function shareArticle(type, title) {
-        const url = window.location.href.split('?')[0] + '?article=' + encodeURIComponent(title);
+    function shareArticle(type, title, id) {
+        const base = window.location.origin + '/pro-aim';
+        const url = id <= 25 ? base + '/articles/' + getArticleSlug(title) + '/' : base + '/?article=' + encodeURIComponent(title);
         const links = { twitter: 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(title) + '&url=' + encodeURIComponent(url), facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), whatsapp: 'https://wa.me/?text=' + encodeURIComponent(title + ' ' + url) };
         if (type === 'copy') { navigator.clipboard.writeText(url); alert('Link copied!'); return; }
         window.open(links[type], '_blank', 'width=600,height=400');
